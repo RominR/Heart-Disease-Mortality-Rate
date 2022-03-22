@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 #Setting directry (if needed)
 import os
 os.getcwd()
-os.chdir('/Users/romin/Library/Mobile Documents/com~apple~CloudDocs/Python/Python_Bootcamp_10-7-2020/Datasets')
+os.chdir('/Users/romin/Library/Datasets')
 
 #Datetime
 import datetime
@@ -66,18 +66,6 @@ import xarray as xr # opens up the bytes file as a xarray dataset.
 #url = https://healthdata.gov/dataset/Heart-Disease-Mortality-Data-Among-US-Adults-35-by/pwn5-iqp5
 
 url = "https://data.cdc.gov/api/views/6x7h-usvx/rows.csv?accessType=DOWNLOAD"
-
-
-'''
-url = https://towardsdatascience.com/an-efficient-way-to-read-data-from-the-web-directly-into-python-a526a0b4f4cb
-
-req = urllib.request.Request(url)
-
-with urllib.request.urlopen(req) as resp:
-    with zipfile.ZipFile(io.BytesIO(resp.read())) as zip_file:
-        zip_names = zip_file.namelist()
-        ds = xr.open_dataset(zip_file.open(zip_names[0]))'''
-
 
 #Using 'requests' to get the information in text form.
 source = requests.get(url).text
@@ -208,7 +196,7 @@ Del_Data_Val['GeographicLevel'] = le.fit_transform(Del_Data_Val['GeographicLevel
 Del_Data_Val['Data_Value_Type'] = le.fit_transform(Del_Data_Val['Data_Value_Type'])
 Del_Data_Val['Stratification1'] = le.fit_transform(Del_Data_Val['Stratification1'])
 Del_Data_Val['Stratification2'] = le.fit_transform(Del_Data_Val['Stratification2'])
-Del_Data_Val_New = Del_Data_Val
+Del_Data_Val_New = Del_Data_Val.copy()
 Del_Data_Val_New.info()
 Del_Data_Val.info()
 
@@ -225,7 +213,7 @@ del_col_df.info()
 #Let's check the accuracy
 
 from sklearn import metrics
-from sklearn.model_selection import train_test_split #url = https://realpython.com/train-test-split-python-data/
+from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(del_col_df, y, test_size = 0.9)
 from sklearn.linear_model import LogisticRegression
 lr = LogisticRegression()
@@ -244,7 +232,7 @@ del_row_df = Del_Data_Val_New.dropna(axis = 0)
 del_row_df.info()
 
 #Splitting the data into x and y.
-y = del_row_df['Data_Value_Type']
+y1 = del_row_df['Data_Value_Type']
 del_row_df.drop(columns = 'Data_Value_Type', axis = 1, inplace = True)
 
 
@@ -252,12 +240,12 @@ del_row_df.drop(columns = 'Data_Value_Type', axis = 1, inplace = True)
 #Let's check for the accuracy.
 from sklearn import metrics
 from sklearn.model_selection import train_test_split 
-X_train, X_test, y_train, y_test = train_test_split(del_row_df, y, test_size = 0.8)
+X1_train, X1_test, y1_train, y1_test = train_test_split(del_row_df, y1, test_size = 0.8)
 from sklearn.linear_model import LogisticRegression
-lr = LogisticRegression()
-lr.fit(X_train, y_train)
-pred = lr.predict(X_test)
-print(metrics.accuracy_score(pred, y_test))
+lr1 = LogisticRegression()
+lr1.fit(X1_train, y1_train)
+pred1 = lr1.predict(X1_test)
+print(metrics.accuracy_score(pred1, y1_test))
 
 #we are able to achieve an accuracy of 100%. Looks like the column 'DataValue' is not that important like I expected.
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -265,31 +253,29 @@ print(metrics.accuracy_score(pred, y_test))
 #Let's try few more method.
 
 #Method3: Filling the missing values- Imputation.
-Fill_Mean_Val = Del_Data_Val.fillna(Del_Data_Val['Data_Value'].mean())
+Fill_Mean_Val = Del_Data_Val_New.fillna(Del_Data_Val['Data_Value'].mean()) 
 Fill_Mean_Val.info()
 
 #Splitting the data into x and y.
-y = Fill_Mean_Val['Data_Value_Type']
+y2 = Fill_Mean_Val['Data_Value_Type']
 Fill_Mean_Val.drop(columns = 'Data_Value_Type', axis = 1, inplace = True)
 
 #Let's check for the accuracy.
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(Fill_Mean_Val, y, test_size = 0.8)
+X2_train, X2_test, y2_train, y2_test = train_test_split(Fill_Mean_Val, y2, test_size = 0.8)
 from sklearn.linear_model import LogisticRegression
-lr = LogisticRegression()
-lr.fit(X_train, y_train)
-pred = lr.predict(X_test)
-print(metrics.accuracy_score(pred, y_test))
+lr2 = LogisticRegression()
+lr2.fit(X2_train, y2_train)
+pred2 = lr2.predict(X2_test)
+print(metrics.accuracy_score(pred2, y2_test))
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #Method4: KNNImputer
 #from sklearn.imputer import KNNImputer (imported at the very beginning) #Doesn't work with string values. Only works for numeric variables.
-impute_knn = KNNImputer(n_neighbors = 7)
+impute_knn = KNNImputer(n_neighbors = 6)
 Del_Data_Val= DataFrame(data = impute_knn.fit_transform(Del_Data_Val), columns = Del_Data_Val.columns)
 Del_Data_Val.info()
-#url = https://medium.com/@kyawsawhtoon/a-guide-to-knn-imputation-95e2dc496e
-
 
 #Checking the df is not null.
 Del_Data_Val.isnull().sum()
@@ -298,12 +284,12 @@ Del_Data_Val.isna().sum()
 #Checking for the accuracy
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(Del_Data_Val, y, test_size= 0.8)
+X3_train, X3_test, y3_train, y3_test = train_test_split(Del_Data_Val, y, test_size= 0.8)
 from sklearn.linear_model import LogisticRegression
-lr = LogisticRegression()
-lr.fit(X_train, y_train)
-pred = lr.predict(X_test)
-print(metrics.accuracy_score(pred, y_test))
+lr3 = LogisticRegression()
+lr3.fit(X3_train, y3_train)
+pred3 = lr3.predict(X3_test)
+print(metrics.accuracy_score(pred3, y3_test))
 
 #it looks like the Data_Value column is not that important as it keeps giving us 100% accuracy no matter how we play with the missing data.
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -316,7 +302,3 @@ Hrt_Dsese_Mrt_Data.isnull().sum() #Checking to see if there are any null values 
 Hrt_Dsese_Mrt_Data.isna().sum() #Checking to see if there are any null values left in the dataset.
  
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-#Now, let us work on some visualization.
-
-
