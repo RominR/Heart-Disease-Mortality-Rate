@@ -6,4 +6,4 @@ Four different methods are used to deal with missing values:
 (2) Deleting the rows with missing data,
 (3) Filling the missing data with a value (mean) – Imputation, and
 (4) Filling the missing data with KNNImputer.
-Also, I have checked the accuracy of all those 4 methods using "sklearn.metrics", "sklearn.model_selection.train_test_split" & "sklearn.linear_model.LogisticRegression", in short, "Supervised Machine Learning". Then, I have picked the best one that suits this dataset.
+Also, I have checked the accuracy of all those 4 methods using "sklearn.metrics", "sklearn.model_selection.train_test_split" & "sklearn.linear_model.LogisticRegression", in short, this is "Supervised Machine Learning". Then, I have picked the best one that suits this dataset.
